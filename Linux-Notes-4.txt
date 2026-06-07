@@ -1,8 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------------
-DAY-1:
+DAY-1: maven command line
 -----------------------------------------------------------------------------------------------------------------------------
-1. AWS Account creation: https://aws.amazon.com -> free tier account - $200 credit - 600 months of time.
-         * GMAIL Account:  xxxxx - verification of account
+
          * Phone number:  xxxxx - verification of account
          * PAN Card: xxxxx - verification of account
          * Debit/Credit card: xxxxxx - verification of account -  Transaction of Rs.2 ( revert back after 2 hours)
@@ -15,6 +14,7 @@ Note: Always be in single region - 38 Regions
 2. How to create/Launch EC2 instance?
      * EC2 - Elastic compute cloud  - module - infrastructure services or resources
      * Instance - Machine/server/box
+vm based build and deployment
 
 ------------------------------------------
 Steps for creating an EC2 instance:
