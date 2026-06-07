@@ -1,0 +1,337 @@
+* Overview of Git
+* Version control System
+     * What is version control system(VCS)?
+     * Why version control system(VCS)?
+     * Traditional system: Linux/Windows machines
+-----------------------------------------------------------------------------------------------------------------------------
+* Types of Version control System
+   * Centralized Version control System
+   * Distributed Version control System
+* Architecture of Git
+-----------------------------------------------------------------------------------------------------------------------------
+* Installation of Git
+* Basic Git commands
+   * git version
+   * git init
+   * git add
+   * git commit
+   * git status
+   * git log
+   * git config
+   * git show
+   * git rm
+---------------------------------------------------------------------------------------------------------------------------
+* Branches
+---------------------------------------------------------------------------------------------------------------------------
+* Merge & Rebase
+* Cherry-pick
+* Tags
+---------------------------------------------------------------------------------------------------------------------------
+* Github Account creation
+----------------------------------------------------------------------------------------------------------------------------
+* Administration of Github PART-1
+    * Repository creation and deletion
+    * Branch creation and deletion
+    * Tag creation and deletion
+    * Add files and commit changes
+    * List commit and check detailed info about commits
+----------------------------------------------------------------------------------------------------------------------------
+* Advanced Commands:
+  * git clone
+  * git pull
+  * git push
+  * git fetch
+  * git checkout
+---------------------------------------------------------------------------------------------------------------------------
+* Remotes
+* PullRequest
+* Fork Mechanism
+---------------------------------------------------------------------------------------------------------------------------
+=============================================================================================================================
+Overview of GIT:
+=============================================================================================================================
+GIT - Global Interaction tool
+Git is an source code management tool which is used for storing all the code, important files, directories, images etc which uses distributed version control system mechanism which provides proper tracking and also benefit of storage cost optimization.
+
+----------------------------------------------------------------------------------------------------------------------
+Why GIT?
+----------------------------------------------------------------------------------------------------------------------
+* what is version control system(VCS)?
+--------------------------------------------------------
+VCS - Version control system is an mechanism which provides an unique identification for managing the data inside the files via commit_id which which is an hexa decimal code in the form of 125/256 bytes using algorithm called "SHA key" - secure hashing algorithm.
+
+eg: commit_id: nincdd3dn3idndi2ndqdn222e3f4
+
+
+--------------------------------------------------------
+* why version control system(VCS)?
+--------------------------------------------------------
+1. Tracking: Who/When/What modified - Proper tracking
+             * Every modification  - capture(email and username)
+             * proper date & time - timestamp
+             * what modified - added/deleted/modified - each & every line/word/sentence/files/directories.
+
+2. Storage cost optimization: Avoid the duplication of the data via VCS mechanism
+
+Ecommerce-website:
+   * login-feature
+   * logout-feature
+   * Add-to-cart
+   * Payment-method
+   * Product catalog
+   * Acknowledgment
+
+eg: Developer: Working in login-feature for website implementation
+
+DAY-1: login.java(10 lines) -> 1 GB -> Build and execution of the code -> Working fine
+          -> Record the changes via commit_id - lncwqcmqwdmqwdmwdmcqwcd322323f
+
+DAY-2: login.java(20 lines) ->  5 GB -> Build and execution of the code -> Working fine
+          -> Record the changes via commit_id - mbbb3b4bn5n6n6n6nn3fn34f32r
+
+
+--------------------------------------------------------
+* Traditional system: Linux/Windows machines
+--------------------------------------------------------
+1. Tracking: Who/When/What modified - No proper tracking
+             * last modified time and date of the last user
+             * last modified user details - username
+             * What modified - added/deleted/modified - No info?
+
+2. Storage cost optimization: There is no possibility to avoid the duplication in traditional system.
+
+Ecommerce-website:
+   * login-feature
+   * logout-feature
+   * Add-to-cart
+   * Payment-method
+   * Product catalog
+   * Acknowledgment
+
+eg: Developer: Working in login-feature for website implementation
+
+DAY-1: login.java -> 1 GB -> Build and execution of the code -> Working fine
+
+     backup_login.java_day1 -> 1 GB
+
+DAY-2: login.java -> 1 GB + 5 GB = 6GB -> Build and execution of the code -> Working fine
+
+     backup_login.java_day2 -> 6 GB
+
+DAY-3: login.java -> 6 GB + 10 GB = 16 GB -> Build and execution of the code -> Working fine
+=============================================================================================================================
+Types of Version control system:
+=============================================================================================================================
+* Centralized Version control system:
+
+1. no parallel development
+2.  chances of data loss
+3. make connection to server - internet connection
+4. license product 
+
+
+eg: clear case and SVN
+
+
+* Distributed Version control system:
+
+1. parallel development
+2. no chances of data loss
+3. Less connection to server - less internet connection
+4. open source - free versions
+                 subscriptions
+
+
+eg: Git, github/bitbucket
+=============================================================================================================================
+Architecture of Git:
+=============================================================================================================================
+Git -> Command line tool -> used only work in local system - specific to user.
+Github -> Remote repository -> all the actual code is stored( server which stores your code) -> SAAS
+
+
+Github :  Remote/central -> GUI Graphical user interface -> button system
+
+Working directory -> When you create/edit files -> untracked files
+
+Staging area -> you bring file to tracking at staging area
+
+local repo -> commit changes for recording it
+
+remote repo -> Main remote repo where all our changes are stored for collaboration 
+
+=============================================================================================================================
+Installation of Git:
+=============================================================================================================================
+Method-1: Ec2 instance:
+sudo su
+yum install git -y
+
+   (OR)
+
+Method-2: Windows/MAC Laptop
+Gitbash software
+
+==========================================================================================================================
+Basic Git commands:
+=============================================================================================================================
+1. How to check version of git?
+   command: git version
+
+------------------------------------------------------------------------------------------------------------------------
+2. How to initialize an local repository?
+   command: git init repository_name
+
+[root@ip-172-31-30-56 ~]# git init devops_repo
+Initialized empty Git repository in /root/devops_repo/.git/
+[root@ip-172-31-30-56 ~]#
+
+Repository: Repository is nothing but an directory which contains additional functionality to perform git operations.
+
+--------------------------------------------------------------------------------------------------------------------------
+3. How to add git configurations?
+   command: git config --list
+            git config --global user.name "trainercloud"
+            git config --global user.email "trainercloud2022@gmail.com"
+
+--------------------------------------------------------------------------------------------------------------------------
+4. git status: git status informs where are we currently located among the git stages.
+
+   command: git status
+
+
+[root@ip-172-31-30-56 devops_repo]# git status
+On branch master
+
+No commits yet
+
+nothing to commit (create/copy files and use "git add" to track)
+[root@ip-172-31-30-56 devops_repo]#
+---------------------------------------------------------------------------------------------------------------------------
+Lets create our first file:
+
+vi file.txt -> add content -> :wq
+
+[root@ip-172-31-30-56 devops_repo]# vi file.txt
+[root@ip-172-31-30-56 devops_repo]#
+[root@ip-172-31-30-56 devops_repo]# git status
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        file.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+[root@ip-172-31-30-56 devops_repo]#
+
+-----------------------------------------------------------------------------------------------------------------------------5. git add: git add is used for bringing the file from working directory(untracked area) to staging area(tracking area) for tracking the file and bringing the file under git control.
+
+command: git add file/directory
+         git add file1 file2 dir1
+         git add .
+
+
+---------------------------------------------------------------------------------------------------------------------------
+6. git commit: git commit is used for recording the changes via commit_id and it will bring the file from staging area(tracking area) to local repository.
+
+command: git commit -m "Message/description"
+
+-m message
+
+[root@ip-172-31-30-56 devops_repo]# git commit -m "Adding first file.txt"
+[master (root-commit) d5fc895] Adding first file.txt
+ 1 file changed, 3 insertions(+)
+ create mode 100644 file.txt
+[root@ip-172-31-30-56 devops_repo]#
+
+-----------------------------------------------------------------------------------------------------------------------------
+7. git log: git log is used for listing the commits.
+   command: git log                 // display all commits
+            git log -n1             // This will display the latest 1 commit
+            git log -n2             // This will display the latest 2 commit
+            git log --oneline       // This will display the short commit_ids and messages
+
+[root@ip-172-31-30-56 devops_repo]# git log
+commit d5fc895b0868e6e04c6b4e20e87d436bac457aed (HEAD -> master)
+Author: trainercloud <trainercloud2022@gmail.com>
+Date:   Sat Sep 27 04:11:10 2025 +0000
+
+    Adding first file.txt
+[root@ip-172-31-30-56 devops_repo]# git log -n1
+commit d5fc895b0868e6e04c6b4e20e87d436bac457aed (HEAD -> master)
+Author: trainercloud <trainercloud2022@gmail.com>
+Date:   Sat Sep 27 04:11:10 2025 +0000
+
+    Adding first file.txt
+[root@ip-172-31-30-56 devops_repo]# git log -n2
+commit d5fc895b0868e6e04c6b4e20e87d436bac457aed (HEAD -> master)
+Author: trainercloud <trainercloud2022@gmail.com>
+Date:   Sat Sep 27 04:11:10 2025 +0000
+
+    Adding first file.txt
+[root@ip-172-31-30-56 devops_repo]#
+[root@ip-172-31-30-56 devops_repo]#
+[root@ip-172-31-30-56 devops_repo]# git log --oneline
+d5fc895 (HEAD -> master) Adding first f
+---------------------------------------------------------------------------------------------------------------------------
+8. git show: git show is used for displaying the detailed info about the commit.
+
+   command: git show commit_id
+
++  - Green - added
+-  - Red - deleted
+no change - white
+
+[root@ip-172-31-30-56 devops_repo]# git show d5fc895b0868e6e04c6b4e20e87d436bac457aed
+commit d5fc895b0868e6e04c6b4e20e87d436bac457aed (HEAD -> master)
+Author: trainercloud <trainercloud2022@gmail.com>
+Date:   Sat Sep 27 04:11:10 2025 +0000
+
+    Adding first file.txt
+
+diff --git a/file.txt b/file.txt
+new file mode 100644
+index 0000000..8a24c79
+--- /dev/null
++++ b/file.txt
+@@ -0,0 +1,3 @@
++GIT - Global Interaction tool
++Git is an source code management tool which is used for storing all the code, important files, directories, images etc which uses distributed version control system mechanism which provides proper tracking and also benefit of storage cost optimization.
++
+[root@ip-172-31-30-56 devops_repo]#c
+----------------------------------------------------------------------------------------------------------------------------
+9. git rm: git rm is used for deleting the files/directories from git source control.
+
+   command: git rm file/directory
+            git commit -m "Messages"
+
+[root@ip-172-31-30-56 devops_repo]# git rm file.txt
+rm 'file.txt'
+[root@ip-172-31-30-56 devops_repo]#
+
+[root@ip-172-31-30-56 devops_repo]# ls -lrt
+total 0
+[root@ip-172-31-30-56 devops_repo]#
+
+[root@ip-172-31-30-56 devops_repo]# git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        deleted:    file.txt
+
+[root@ip-172-31-30-56 devops_repo]# git commit -m "deleted file.txt"
+[master a354ea8] deleted file.txt
+ 1 file changed, 3 deletions(-)
+ delete mode 100644 file.txt
+[root@ip-172-31-30-56 devops_repo]#
+
+=============================================================================================================================
+Note: use "git rm --cached <file>..." to unstage -> After first time added file
+      use "git restore <file>..." to discard changes in working directory -> second  time added content in file
+      (use "git restore --staged <file>..." to unstage) -> second  time added content in file
+
+
+=============================================================================================================================
+

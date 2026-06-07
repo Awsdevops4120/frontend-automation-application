@@ -1,0 +1,1030 @@
+Overview of Linux OS
+Datacenter, Servers, Physical and Virtual Machine
+Hypervisor and Cloud  - pending
+Installation of Linux OS on EC2 instance
+---------------------------------------------------------------------------------------------------------------------------
+Basic Linux commands
+Filesystem
+---------------------------------------------------------------------------------------------------------------------------
+User Management
+Delegate the sudo privileges to Regular user
+---------------------------------------------------------------------------------------------------------------------------
+Permissions:
+  * Change Modification
+  * Change ownership
+---------------------------------------------------------------------------------------------------------------------------
+Package Management:
+  * RPM
+  * YUM
+  * APT - Ubuntu
+---------------------------------------------------------------------------------------------------------------------------
+Backup and Restore:
+  * TAR
+  * ZIP
+  * DD
+---------------------------------------------------------------------------------------------------------------------------
+Advanced Linux commands:
+   * Resources
+   * Network
+   * Service
+
+---------------------------------------------------------------------------------------------------------------------------
+Pending:
+--------------------------------------------------------------------------------------------------------------------------
+Links:
+  * Soft link
+  * Hard link
+---------------------------------------------------------------------------------------------------------------------------
+Automation of Jobs:
+  * AT job
+  * Crontab
+---------------------------------------------------------------------------------------------------------------------------
+SSH and SCP: (Ansible)
+   * Password connection
+   * Passwordless connection
+---------------------------------------------------------------------------------------------------------------------------
+Installation of Windows OS on EC2 instance
+How to connect Windows OS ?
+--------------------------------------------------------------------------------------------------------------------------
+How to launch an static web Application via Linux EC2 instance?
+How to launch and connect windows machine?
+=============================================================================================================================
+
+-----------------------------------------------------------------------------------------------------------------------------
+DAY-1:
+-----------------------------------------------------------------------------------------------------------------------------
+1. AWS Account creation: https://aws.amazon.com -> free tier account - $200 credit - 600 months of time.
+         * GMAIL Account:  xxxxx - verification of account
+         * Phone number:  xxxxx - verification of account
+         * PAN Card: xxxxx - verification of account
+         * Debit/Credit card: xxxxxx - verification of account -  Transaction of Rs.2 ( revert back after 2 hours)
+
+Note: MFA Authenticator - Phone apps - download google authenticator - one time password authentication
+          * Download - QR code - Scan  - enter OTP to register.
+-----------------------------------------------------------------------------------------------------------------------------
+Note: Always be in single region - 38 Regions
+-----------------------------------------------------------------------------------------------------------------------------
+2. How to create/Launch EC2 instance?
+     * EC2 - Elastic compute cloud  - module - infrastructure services or resources
+     * Instance - Machine/server/box
+
+------------------------------------------
+Steps for creating an EC2 instance:
+------------------------------------------
+Note: all resources count should be "0" except "1" security group.
+
+1. Name and tags: Webserver/Test/prod/sbox etc
+2. Application and OS Images (Amazon Machine Image): OS image - Redhat
+3. Instance type: t3.micro - 2 core cpu and 1 GB RAM
+4. Key pair (login): .pem - openssh tools 
+                     .ppk - putty tool
+5. Network settings: Leave as it is
+6. Configure storage : 10 GB HD
+-----------------------------------------------------------------------------------------------------------------------------
+3. How to connect an EC2 instance?
+    * AWS Cloud Shell 
+    * Command prompt/Terminal
+    * MobaXterm
+    * Putty
+============================================================================================================================
+                                        LINUX ADMINISTRATION
+============================================================================================================================
+Operating system is an software which runs on hardware for creating/launching/running applications.
+
+------------------------------
+Operating version: 
+------------------------------
+Microsoft:
+Windows: XP, Vista, 7.x, 8.x, 10.x, 11.x - Desktop operating system - Personal/individual use - CLI and GUI
+         2008, 2012, 2016, 2019, 2022, 2025 - Server operating system - Live/Production use - CLI and GUI 
+
+Linux:
+ Redhat: RHEL - 7.x, 8.x, 9.x[stable], 10.x[latest] - Server OS - Personal/Production use - CLI(recommended) and GUI
+ Debian: Ubuntu - 18.04, 20.04, 22.04, 24.04 - Server OS - Personal/Production use - CLI(recommended) and GUI
+ Other flavours: Centos, fedora, kali Linux, Linux mint, Susi Linux, Selinux, Amazon Linux etc 
+
+
+Server: Server is nothing but an machine( Virtual machine/server, Physical machine/server, instance, box etc) which provides functionality to use the feature of OS and application running inside it.
+
+
+Datacenter: Datacenter is secure location/building/room which contains racks, servers(app/Db etc), Firewall devices, network devices(routers, switches) , AC's, coolers etc
+
+
+Physical server:
+
+
+Virtual server:
+
+
+Virtualization:
+
+
+Cloud:
+  Server - Instance
+  Datacenter - Availability zone
+
+--------------------------------------------------------------------------------------------------------------------------
+Basic Linux commands:
+
+command  --help
+man command
+--------------------------------------------------------------------------------------------------------------------------
+1. How to check OS version in linux?
+   command: cat /etc/os-release                      // This command works in all linux flavours
+            cat /etc/redhat-release                  // This command works in only Redhat OS versions
+---------------------------------------------------------------------------------------------------------------------------
+2. How to check the date and time in system?
+   command: date
+
+---------------------------------------------------------------------------------------------------------------------------
+3. How to create an file in linux?
+   command: touch filename                       // creates an file
+
+----------------------------------------------------------------------------------------------------------------------------
+4. How to create an directory(folder) ?
+   command: mkdir dirname                    // create an empty directory
+            mkdir test1 test2 test3          // create multiple directories
+            mkdir -p dir1/dir2/dir3/dir4     // recursively create directories 
+
+-p recursive 
+
+-----------------------------------------------------------------------------------------------------------------------------
+5. How to check the status of previous command?
+   command: echo $?
+   0 - success
+   1 or above - failure
+
+   echo - print statement
+   $? - status of previous command
+
+-----------------------------------------------------------------------------------------------------------------------------
+6. How to list files and directories in linux?
+   command: ls                       // list all files and directories
+            ls -lrt                  // Detailed listing of all files and directories
+            ls -lRt                  // recursive listing of all files and directories
+
+
+-l long listing
+-r sorting
+-t formatting
+-R recursively
+
+File         permissions       link        user        group       size         date & time           filename
+-            rw-r--r--.         1         ec2-user    ec2-user       0        Sep 19 04:35          file.txt
+
+directory    permissions       link        user        group       size         date & time           filename
+d            rwxr-xr-x.         2         ec2-user    ec2-user       6        Sep 19 04:37          test-dir
+
+-----------------------------------------------------------------------------------------------------------------------------
+7. How to switch to directory or switch between directories?
+   command: cd dir_name                 // change directory or go inside the directory
+            cd ..                       // one directory back
+            cd ../..                    // two directories back
+            cd                          // takes to home directory of logged in user
+
+-----------------------------------------------------------------------------------------------------------------------------
+8. How to check the current path in the system where are we located?
+   command: pwd             // present working directory
+
+-----------------------------------------------------------------------------------------------------------------------------
+9. Home directory: tilde symbol '~' - Indicates its an home directory of logged in user
+                                 #  - Indicates root(admin/super) user is logged in
+                                 $  - Indicates regular user is logged in
+                                 whoami - which user is logged in
+
+-----------------------------------------------------------------------------------------------------------------------------
+10. How to switch to root user and regular user account?
+    command:  sudo su - root  (OR) sudo su  // switch to root user account
+              su - username                 // switch to regular user account(Always switch to regular user account from another regular user account but not from root account)
+
+----------------------------------------------------------------------------------------------------------------------------
+11. How to add/update/delete content inside the file? 
+    command: vi/vim/nano filename                // text editors
+
+             by default - file will open in read-only mode
+             i button - insert mode - add/delete/modify content
+             esc button - read-only
+
+             Below commands needs to be executed in read-only mode:
+             :w - save
+             :q - quit
+             :wq - save and quit
+
+             dd - delete an line
+             x - delete an character(letter)
+             u - undo the changes in same session before saving and quiting
+
+
+Google: vi sheet cheat
+
+-----------------------------------------------------------------------------------------------------------------------------
+12. How to display the content of the file without opening the file?
+    command: cat filename
+
+-----------------------------------------------------------------------------------------------------------------------------
+13. Redirection operators: Redirection operators are used for redirecting the output or content to specific file.
+
+     > - override  - First time it will add the content to the file
+                     Second time it will override( removing existing content and adding new content)
+
+
+     >> - append  - First time it will add the content to the file
+                    Second time it will append( add new content on top of existing content)
+
+
+eg: cat > sample.txt          // cat reads data from std input and redirects to sample.txt
+    interactive mode> Type the content
+    interactive mode> Type the content
+    interactive mode> Type the content
+    interactive mode> ctrl d - press button together - save and quit
+
+eg: cat >> sample.txt
+    interactive mode> Type the content
+    interactive mode> Type the content
+    interactive mode> Type the content
+    interactive mode> ctrl d - press button together - save and quit
+
+
+eg: date > date.out
+    cat file.txt >> new-file.txt
+    yum install wget -y > install.out
+
+-----------------------------------------------------------------------------------------------------------------------------
+14. How to delete the files and directories in linux?
+    command: rm file.txt                  // remove file
+             rm -i sample.txt             // -i confirmation y/n
+             rm -f new-sample.txt         // -f force without confirmation 
+ 
+             rmdir test-dir               // remove the empty directory
+             rm -rf dir1                  // remove the main directory and its sub-directories
+
+             rm -rf *                     // * means everything  - be careful bec we dont have recycle bin to restore
+
+             rm -rf /app/data             // remove data directory and its content
+             rm -rf /app/data/*           // remove only contents of data directory but not data directory itself.
+
+-r recursive
+-f force
+
+---------------------------------------------------------------------------------------------------------------------------         
+15. How to check the activity performed in the system?
+    command: history
+
+---------------------------------------------------------------------------------------------------------------------------
+16. How to clear the screen?
+    command: clear
+
+---------------------------------------------------------------------------------------------------------------------------
+17. How to exit from user account and system?  
+    command: exit
+---------------------------------------------------------------------------------------------------------------------------
+18. How to download the object from internet?
+    command: curl -O <URL>
+             wget <URL>
+
+eg: curl -O https://archives.jenkins-ci.org/redhat-stable/jenkins-2.516.3-1.1.noarch.rpm
+    wget https://tomcat.apache.org/tomcat-6.0-doc/appdev/sample/sample.war
+
+Note: sudo su 
+      yum install wget -y
+
+=============================================================================================================================
+Filesystem: Filesystem is an writable location for storing the data into disk.
+=============================================================================================================================
+Windows:  Local disk  - C:\> drive - filesystem
+
+Linux: Primary disk - "/" or root filesystem
+
+Primary disk: Boot disk - OS is installed - created when machine is launched.
+   / - root filesystem
+     - /root - home directory for root(admin/super) user
+     - /home - home directory for regular users
+     - /bin - binaries
+     - /lib - libraries
+     - /dev - devices
+     - /opt - 3rd party softwares
+     - /mnt - temporary space for users
+     - /tmp - temporary space for systems
+     - /usr - unix resources( binaries, libraries, in-build packages etc)
+     - /proc - resources(cpu, ram )
+     - /media - videos, audio, images etc
+     - /boot - OS kernel files, initramfs etc
+     - /etc - system configuration files
+
+Secondary disk: Additional disk - Data and Application 
+        * Create volume(disk)
+        * Attach volume to machine
+        * Partitioning(dividing disk into parts)
+        * Formatting - blocks(super, inode, journalctl etc)
+        * Create filesystem( eg: /app, /app/devops, /data/ops etc)
+        * Mounting - Mapping disk with filesystem
+
+=============================================================================================================================
+Package Management: Software Management
+===========================================================================================================================
+Windows: .exe(executables) -> double click -> Follow the instructions.
+
+Linux: 
+   Redhat: .rpm(redhat package manager) -> Execute command -> RPM - Redhat Package manager
+                                                              YUM - Yellow dog update modifier
+
+   Debian: .deb(debian) -> Execute command -> apt - advanced packaging tool
+
+
+1. RPM: Redhat package manager
+        RPM is used since earlier versions of linux and still we are making use of it.
+        RPM allows us to install single package at a time.
+        Using RPM, we can install, uninstall, upgrade the package.
+        For RPM installation, we need to download the package then install it.
+        RPM doesn't resolve, download and install dependent packages automatically, we need to manually resolve, download and install dependent packages.
+         eg: httpd-2.5.1-1.1.el9.x86_64.rpm       // Install httpd
+               Error: httpd-tools package not found
+                   httpd-tools-2.5.1-1.1.el9.x86_64.rpm       // Install httpd-tools
+                        Error: httpd-security package not found
+                           httpd-security-2.5.1-1.1.el9.x86_64.rpm       // Install httpd-security
+        We need to mention full path and complete package name at the time of installation.
+
+URL: https://archives.jenkins-ci.org/redhat-stable/
+
+command: curl -O https://archives.jenkins-ci.org/redhat-stable/jenkins-2.263.1-1.1.noarch.rpm
+         rpm -ivh jenkins-2.263.1-1.1.noarch.rpm                       // install package
+         rpm -qa                                                       // Query all  / list all installed packages
+         rpm -qa | grep -i jenkins                                     // Filter and list installed package
+         rpm -qi jenkins-2.263.1-1.1.noarch                            // query information
+         rpm -ql jenkins-2.263.1-1.1.noarch                            // query list all locations
+         
+         curl -O https://archives.jenkins-ci.org/redhat-stable/jenkins-2.263.4-1.1.noarch.rpm
+         rpm -Uvh jenkins-2.263.4-1.1.noarch.rpm                       // Upgrade the package
+         rpm -e jenkins-2.263.4-1.1.noarch                             // Remove/upgrade package
+
+-i install
+-v verbose(detailed output)
+-h hash - % of completion 
+-U upgrade
+
+grep - filter the content/file/directory/software
+  -i casesensitive 
+| - pipe - forward output of one command as input to another command.
+
+-----------------------------------------------------------------------------------------------------------------------------
+2. YUM: Yellow dog update modifier
+        YUM is used since 5.x version of linux OS and still we are making use of it.
+        YUM allows us to install more than one package at a time.
+        Using YUM, we can install, uninstall, upgrade the package.
+        For YUM installation, we just need to install the package and yum will download the package at the time of installation automatically.
+        YUM also resolves, downloads and installs all the dependent packages automatically, before installing actual package.
+        We dont need to mention full path and complete package name at the time of installation.
+        YUM works with yum repositories which are under /etc/yum.repos.d -> *.repo
+
+cd /etc/yum.repos.d
+-----------------------
+vi jenkins.repo
+-----------------------
+[jenkins]
+name=description
+baseurl/mirrorlist= online URL location where all the packages are stored
+enabled=0/1
+gpgcheck=0/1
+gpgkeys=/etc/cert/jenkins.key
+
+commands: yum install httpd -y              // Install latest package version
+          yum install httpd-2.4* -y         // Install specific version of package 
+          yum list                          // list all packages - installed/uninstalled
+          yum list --installed              // list all installed packages
+          yum list --installed | grep -i httpd  // filter and list installed package
+          yum upgrade httpd -y               // upgrade package
+          yum update -y                      // upgrade all package
+          yum remove httpd -y                // Remove package 
+
+
+-y confirmation yes/no
+
+eg: zip, wget, at, bind-utils, net-tools, java, git, maven etc
+    yum install zip -y
+    yum install maven git -y
+
+----------------------------------------------------------------------------------------------------------------------------
+3. APT: Advanced packaging tool
+        APT is used since earliers version of linux OS and still we are making use of it.
+        APT allows us to install more than one package at a time.
+        Using APT, we can install, uninstall, upgrade the package.
+        For APT installation, we just need to install the package and APT will download the package at the time of installation automatically.
+        APT also resolves, downloads and installs all the dependent packages automatically, before installing actual package.
+        We dont need to mention full path and complete package name at the time of installation.
+        APT works with apt repositories which are under /etc/apt/sources.list.d -> .sources
+
+
+cd  /etc/apt/sources.list.d
+------------------------------ 
+vi ubuntu.sources
+------------------------------
+Types: deb
+URIs: http://us-east-1.ec2.archive.ubuntu.com/ubuntu/
+Suites: noble noble-updates noble-backports
+Components: main universe restricted multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+commands: apt install apache2 -y              // Install latest package version
+          apt install apache2-2.4* -y         // Install specific version of package 
+          apt list                          // list all packages - installed/uninstalled
+          apt list --installed              // list all installed packages
+          apt list --installed | grep -i apache2  // filter and list installed package
+          apt upgrade apache2 -y               // upgrade package
+          apt update -y                      // upgrade all package
+          apt remove apache2 -y                // Remove package 
+
+
+-y confirmation yes/no
+
+eg: zip, wget, at, bind-utils, net-tools, java, git, maven etc
+    apt install zip -y
+    apt install maven git -y
+=============================================================================================================================
+Backup and Restore:
+=============================================================================================================================
+      Backups are taken on softwares, files, directories, system logs, system messages, application logs, images etc
+      Backups are taken for preserving the data for future reference and also it helps in case of disaster recovery.
+      Further we can compress the backups, so we can easily transfer the backups to any location and also reduce the storage cost optimization.
+
+1. TAR: Tape Archive
+        Tar is an linux utility which comes in-built in any linux OS versions.
+        Tar is used for taking backups on softwares, files, directories, system logs, system messages, application logs, images etc
+        Using tar, we can further compress the objects.
+        Tar has extension as .tar(bundle) and .tar.gz(bundle and compression)
+
+--------------------------------------------------------------------
+How to create/take backup without compression?
+command: tar -cvf file.tar file1 file2 file3 file4
+         tar -cvf file.tar file*
+         tar -cvf file.tar *
+--------------------------------------------------------------------
+How to create/take backup with compression?
+command: tar -cvzf file.tar.gz file1 file2 file3 file4
+         tar -cvzf file.tar.gz file*
+         tar -cvzf file.tar.gz *
+--------------------------------------------------------------------
+How to verify the backup ?
+command: tar -tvf file.tar.gz
+         tar -tvf file.tar
+--------------------------------------------------------------------
+How to restore/extract the backup ?
+command: tar -xvf file.tar.gz
+         tar -xvf file.tar
+--------------------------------------------------------------------
+-c create
+-v verbose
+-f force
+-t display/verify
+-x extract/restore
+
+eg:  curl -O https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
+---------------------------------------------------------------------------------------------------------------------------
+2. ZIP: Zip is an linux utility which is an 3rd party software in most of the linux OS.
+        Zip is used for taking backups on softwares, files, directories, system logs, system messages, application logs, images etc
+        Using Zip, we can further compress the objects.
+        Zip has extension as .zip(bundle and compression)
+
+Note: yum install zip -y
+      apt install zip -y
+
+-------------------------------------------------------------------
+How to take/create backup ?
+command: zip -r file.zip file1 file2 file3 file4
+         zip -r file.zip file*
+         zip -r file.zip *
+
+-r recursive
+
+[root@ip-172-31-19-190 ~]# zip -r file.zip *
+  adding: file1 (deflated 75%)
+  adding: file2 (deflated 75%)
+  adding: file3 (deflated 75%)
+  adding: file4 (deflated 75%)
+[root@ip-172-31-19-190 ~]#
+[root@ip-172-31-19-190 ~]#
+-------------------------------------------------------------------
+How to restore/extract backup ?
+command:  unzip file.zip
+
+[root@ip-172-31-19-190 ~]# unzip file.zip
+Archive:  file.zip
+  inflating: file1
+  inflating: file2
+  inflating: file3
+  inflating: file4
+[root@ip-172-31-19-190 ~]# 
+
+eg: curl -O https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.zip
+
+------------------------------------------------------------------------------------------------------------------
+3. dd - device drivers to take backup of entire disk.
+   command: dd if=/dev/sda of=/dev/sdb
+
+dd - device drivers
+if - input file
+of - output file
+=============================================================================================================================
+User Management:
+============================================================================================================================
+Super/Admin user: root user - most privileged user - non restricted user - default user in most of the Linux OS.
+                  uid -  0
+                  gid - 0
+                  FN/comment - root
+                  home directory - /root
+                  SHELL - /bin/bash
+
+System user: ping, bin, daemon, system etc - interact with kernel OS
+                  uid - 1-999
+                  gid - 1-999
+                  FN/comment - ping, bin, daemon, system
+                  home directory - /ping, /bin, /daemon, /system
+                  SHELL - /sbin/nologin
+
+Regular user: Normal user - Restricted user - john, smith, tomcat, sonar etc
+                  uid - 1000 - soo on
+                  gid - 1000 - soo on
+                  FN/comment - "John Ronald" , "Smith france",  tomcat, sonar etc
+                  home directory - /home/john, /home/smith, /home/tomcat, /home/sonar etc
+                  SHELL - /bin/bash
+
+
+------------------------------------
+System configuration files:
+------------------------------------
+1. /etc/passwd: This file contains all the user details except the password details.
+
+2. /etc/shadow: This file contains all the password details and password settings.
+
+3. /etc/group: This file contains all the group details and users assigned to group.
+
+-----------------------------------------------------------
+commands:
+-----------------------------------------------------------
+1. How to create an regular user?
+   command: useradd username   
+        eg: useradd john
+
+--------------------------------------------------------------
+2. How to set or reset the password?
+   command: passwd username
+        eg: passwd john
+
+[root@ip-172-31-37-185 ~]# passwd john
+New password:
+BAD PASSWORD: The password is shorter than 8 characters
+Retype new password:
+passwd: password updated successfully
+[root@ip-172-31-37-185 ~]#
+----------------------------------------------------------------
+3. How to create an group?
+   command: groupadd group_name
+       eg: groupadd automation
+
+----------------------------------------------------------------
+4. How to assign users to the group?
+   command: usermod -G group_name username
+       eg: usermod -G automation john
+
+-----------------------------------------------------------------
+5. How to create an customized user?
+   command: useradd -d "home directory" -c "FN/comment" -s "SHELL" username
+       eg: useradd -d "/home/smithfrance" -c "FRANCE SMITH" -s "/bin/sh" fsmith
+
+-------------------------------------------------------------------------
+6. How to modify the user details?
+   command: usermod -d "home directory" -c "FN/comment" -s "SHELL" username
+     eg: usermod -c "JOHN Willam" -s "/bin/sh" john
+
+---------------------------------------------------------------------------
+7. How to change the password settings?
+   command: chage -l               // list all options
+            chage -l username      // list the password settings details
+            chage -M 90 john       // set maximum number of days before password change to MAX_DAYS
+            chage -W 3 john        // set expiration warning days to WARN_DAYS
+---------------------------------------------------------------------------
+8. How to delete the user and group?
+   command: userdel  user_name
+            groupdel group_name
+
+============================================================================================================================
+Delegate sudo privileges to regular user:
+============================================================================================================================
+/etc/sudoers - This file contains all the root level privileges to perform root level activities without needing the root password.
+               To access the /etc/sudoers file, use visudo command.
+
+eg: visudo
+## Allow root to run any commands anywhere
+root    ALL=(ALL)       ALL
+john    ALL=(ALL)       ALL
+
+To perform any root level commands, we need to add sudo as prefix in front of any command.
+
+eg: sudo useradd william
+    [sudo] password for john:
+
+
+eg: sudo yum install httpd -y
+    [sudo] password for john:
+
+
+============================================================================================================================
+Permissions: Permissions are provided on any object to users, groups and others.
+=============================================================================================================================
+1. change modification: Change modification is used for changing permissions like read, write and execute to restrict/allow using any object by users, groups and others via chmod command.
+
+read         - view content or files/directories
+write        - add/append/modify/delete content or files/directories
+execute      - run program/script
+
+
+read     - r - 4
+write    - w - 2
+execute  - x - 1
+
+Least permission: 400
+Highest permission: 777
+
+Default permission for file: 644
+user   group  others
+rw-    r--     r--
+420    400     400
+ 6      4       4
+
+Default permission for directory: 755
+user   group  others
+rwx    r-x     r-x
+421    401     401
+ 7      5       5
+
+
+syntax: chmod [options]  [permissions] [file/directory]
+   
+
+command: chmod 400 sample.txt
+         chmod 444 sample.txt
+         chmod 666 sample.txt
+         chmod 777 sample.txt
+
+         chmod u=rw,g=rw,o=rw new-sample.txt
+         chmod u=r.g=r,o=r new-sample.txt
+         chmod u=rwx,g=rwx,o=rwx new-sample.txt  
+
+         chmod +x test.sh
+         chmod -x test.sh
+
+         chmod -R 700 sample-dir
+         chmod -R 777 dir1
+  
+         chmod -R 400 *
+         chmod -R 400 /app/data
+         chmod -R 400 /app/data/*
+
+-R recursive
+            
+----------------------------------------------------------------------------------------------------------------------------
+2. change ownership: Change ownership is used for transferring the ownership to other users and groups via chown command.
+
+    syntax: chown [options] [user]:[group] [file/directory]
+
+    command: chown john:john sample.txt
+             chown john:root new-sample.txt
+             chown root:john file.txt
+
+             chown -R john:john test-dir
+             chown -R john:john dir1
+
+             chown -R willam:willam *
+             chown -R willam:willam /app/data
+             chown -R willam:willam /app/data/*   
+
+=============================================================================================================================     
+Advanced Linux commands:
+=============================================================================================================================
+1. How to check IP Address of the machine?
+   command: ifconfig -a
+            hostname -i
+
+Note: yum install bind-utils net-tools -y
+
+----------------------------------------------------------------------------------------------------------------------------
+2. How to check host details of the machine?
+   command: hostname            // Full FQDN - Fully Qualified Domain Name
+
+-----------------------------------------------------------------------------------------------------------------------------
+3. How to check connectivity between machines?
+   command: ping IPaddress/machine-name
+
+[root@ip-172-31-25-191 ~]# ping 172.31.25.191
+PING 172.31.25.191 (172.31.25.191) 56(84) bytes of data.
+64 bytes from 172.31.25.191: icmp_seq=1 ttl=64 time=0.020 ms
+64 bytes from 172.31.25.191: icmp_seq=2 ttl=64 time=0.029 ms
+64 bytes from 172.31.25.191: icmp_seq=3 ttl=64 time=0.050 ms
+64 bytes from 172.31.25.191: icmp_seq=4 ttl=64 time=0.044 ms
+64 bytes from 172.31.25.191: icmp_seq=5 ttl=64 time=0.030 ms
+64 bytes from 172.31.25.191: icmp_seq=6 ttl=64 time=0.044 ms
+^C
+--- 172.31.25.191 ping statistics ---
+6 packets transmitted, 6 received, 0% packet loss, time 5118ms
+rtt min/avg/max/mdev = 0.020/0.036/0.050/0.010 ms
+[root@ip-172-31-25-191 ~]#
+-----------------------------------------------------------------------------------------------------------------------------
+4. How to check port number occupied in the system?
+   command: netstat -ntulp
+
+-n numberic
+-t tcp
+-u udp
+-l listening
+-p pid/program
+
+[root@ip-172-31-25-191 ~]# netstat -ntulp
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1204/sshd: /usr/sbi
+tcp6       0      0 :::22                   :::*                    LISTEN      1204/sshd: /usr/sbi
+udp        0      0 127.0.0.1:323           0.0.0.0:*                           758/chronyd
+udp6       0      0 ::1:323                 :::*                                758/chronyd
+[root@ip-172-31-25-191 ~]#
+
+-----------------------------------------------------------------------------------------------------------------------------
+5. How to check running processess details ?
+   command: ps -ef                          // list all running process
+            ps -ef | grep -i chronyd        // filter and list the running process
+
+
+[root@ip-172-31-25-191 ~]# ps -ef | grep -i chronyd
+chrony       758       1  0 03:36 ?        00:00:00 /usr/sbin/chronyd -F 2
+root        1524    1361  0 03:51 pts/1    00:00:00 grep --color=auto -i chronyd
+[root@ip-172-31-25-191 ~]#
+---------------------------------------------------------------------------------------------------------------------------
+6. How to forcefully stop the running process?
+   command: kill -9 pid
+
+[root@ip-172-31-25-191 ~]# kill -9 758
+[root@ip-172-31-25-191 ~]#
+[root@ip-172-31-25-191 ~]# netstat -ntulp
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1204/sshd: /usr/sbi
+tcp6       0      0 :::22                   :::*                    LISTEN      1204/sshd: /usr/sbi
+[root@ip-172-31-25-191 ~]# ps -ef | grep -i chronyd
+root        1546    1361  0 03:52 pts/1    00:00:00 grep --color=auto -i chronyd
+[root@ip-172-31-25-191 ~]#
+---------------------------------------------------------------------------------------------------------------------------
+7. How to check IP address of the URL/Hostname shared?
+   command: nslookup URL/hostname
+
+[root@ip-172-31-25-191 ~]# nslookup www.google.com
+Server:         172.31.0.2
+Address:        172.31.0.2#53
+
+Non-authoritative answer:
+Name:   www.google.com
+Address: 172.253.63.99
+Name:   www.google.com
+Address: 172.253.63.105
+Name:   www.google.com
+Address: 172.253.63.103
+Name:   www.google.com
+Address: 172.253.63.147
+Name:   www.google.com
+Address: 172.253.63.106
+Name:   www.google.com
+Address: 172.253.63.104
+Name:   www.google.com
+Address: 2607:f8b0:4004:c17::69
+Name:   www.google.com
+Address: 2607:f8b0:4004:c17::63
+Name:   www.google.com
+Address: 2607:f8b0:4004:c17::93
+Name:   www.google.com
+Address: 2607:f8b0:4004:c17::68
+
+[root@ip-172-31-25-191 ~]#
+
+-----------------------------------------------------------------------------------------------------------------------------
+8. How to check disk free space in the linux ?
+   command: df -h              // df - disk free 
+                                  -h headers
+
+Make sure use% should not exceed 80% - in case if it reaches 100% - login will fail both in GUI and CLI
+                                                                  - Data will not be written in .dat files
+                                                                  - logs will not be captuted in .log files
+
+            Solution: Reboot the machine from console
+
+
+[root@ip-172-31-25-191 ~]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p3  9.8G  1.8G  8.1G  18% /
+devtmpfs        4.0M     0  4.0M   0% /dev
+tmpfs           454M     0  454M   0% /dev/shm
+efivarfs        128K  3.6K  120K   3% /sys/firmware/efi/efivars
+tmpfs           182M  3.5M  178M   2% /run
+tmpfs           1.0M     0  1.0M   0% /run/credentials/systemd-journald.service
+/dev/nvme0n1p2  200M  8.4M  192M   5% /boot/efi
+tmpfs           1.0M     0  1.0M   0% /run/credentials/getty@tty1.service
+tmpfs           1.0M     0  1.0M   0% /run/credentials/serial-getty@ttyS0.service
+tmpfs            91M  4.0K   91M   1% /run/user/1000
+[root@ip-172-31-25-191 ~]#
+
+-----------------------------------------------------------------------------------------------------------------------------
+9. How to check disk usage in the machine?
+   command: du -sh file/directory/image
+            du -sh /
+            du -sh *
+
+-----------------------------------------------------------------------------------------------------------------------------
+10. How to empty an file withoyt deleting it ?
+    command: echo > filename
+
+echo - print statement
+> - override
+
+[root@ip-172-31-25-191 log]# cd audit/
+[root@ip-172-31-25-191 audit]# du -sh *
+44K     audit.log
+[root@ip-172-31-25-191 audit]# tar -cvzf audit.tar.gz audit.log
+audit.log
+[root@ip-172-31-25-191 audit]# du -sh *
+44K     audit.log
+8.0K    audit.tar.gz
+[root@ip-172-31-25-191 audit]# echo > audit.log
+[root@ip-172-31-25-191 audit]#
+[root@ip-172-31-25-191 audit]# ls -lrt
+total 12
+-rw-r--r--. 1 root root 4649 Sep 25 04:01 audit.tar.gz
+-rw-------. 1 root root    1 Sep 25 04:03 audit.log
+[root@ip-172-31-25-191 audit]# du -sh *
+4.0K    audit.log
+8.0K    audit.tar.gz
+[root@ip-172-31-25-191 audit]#
+-----------------------------------------------------------------------------------------------------------------------------
+11. How to check cpu and ram details in machine?
+    command: lscpu
+             cat /proc/cpuinfo
+
+             free -g/m/k
+             cat /proc/meminfo
+
+----------------------------------------------------------------------------------------------------------------------------
+12. How to check, How many users are logged in?
+                  How long machine is up and running?
+                  load average on machine?
+    command: uptime                 // system is running more than 365 days then reboot is recommended.
+
+[root@ip-172-31-25-191 ~]# uptime
+ 04:09:08 up 32 min,  2 users,  load average: 0.01, 0.01, 0.00
+[root@ip-172-31-25-191 ~]#
+
+---------------------------------------------------------------------------------------------------------------------------
+13. How to check, cpu and ram utilization?
+                  How many users are logged in?
+                  How long machine is up and running?
+                  load average on machine?
+    command:  top
+
+
+---------------------------------------------------------------------------------------------------------------------------
+14. How to check disk available in machine?
+    command:  lsblk           // list the block list
+              fdisk -l        // disk managament utility
+
+---------------------------------------------------------------------------------------------------------------------------
+15. How to start/stop/enable/disable/restart/status check of the service?
+    command: systemctl enable httpd
+             systemctl disable httpd
+
+             systemctl start httpd
+             systemctl stop httpd
+
+             systemctl restart httpd
+             systemctl status httpd
+
+-----------------------------------------------------------------------------------------------------------------------------
+16. How to copy files/directories from one location to another location?
+   
+    syntax: cp [options] [src-location] [dest-location]
+
+     -r recursively
+     -f force
+     -p preserve permissions
+
+
+   command: cp file1 file2        // if file2 doesn't exist, file2 is created and then file1 contents are copied into file2
+                                  // if file2 exist, file1 contents will copied into file2
+
+
+            cp -r dir1 dir2      // if dir2 doesn't exist, dir2 is created and then dir1 contents are copied into dir2
+                                 // if dir2 exist, dir1 itself is copied into dir2
+
+            cp sample.txt dir2
+
+            cp -r * /opt
+
+            cp -r /opt/* /mnt/
+
+----------------------------------------------------------------------------------------------------------------------------
+17. How to move or rename files/directories from one location to another location?
+   
+    syntax: mv [src-location] [dest-location]
+
+    command: mv file1 file2          // file1 will be renamed as file2
+             mv dir1 dir2            // dir1 will be renamed as dir2
+
+             mv sample.txt dir2     // move sample.txt into dir2
+
+             mv /opt/* /tmp
+             
+             mv /mnt/* /opt
+
+             mv * /mnt/
+
+-----------------------------------------------------------------------------------------------------------------------------
+18. How to restart the machine from command line?
+    command: reboot
+
+[root@ip-172-31-25-191 ~]# reboot
+
+Broadcast message from root@localhost on pts/1 (Thu 2025-09-25 04:51:21 UTC):
+
+The system will reboot now!
+
+[root@ip-172-31-25-191 ~]# client_loop: send disconnect: Connection reset
+
+C:\Users\Sree Latha\Downloads>
+-----------------------------------------------------------------------------------------------------------------------------
+19. How to check the last reboot activity in the machine?
+    command:  last reboot
+
+[root@ip-172-31-25-191 ~]# last reboot
+reboot   system boot  6.12.0-55.25.1.e Thu Sep 25 04:51   still running
+reboot   system boot  6.12.0-55.25.1.e Thu Sep 25 03:36 - 04:51  (01:14)
+
+wtmp begins Thu Sep 25 03:36:33 2025
+[root@ip-172-31-25-191 ~]#
+-----------------------------------------------------------------------------------------------------------------------------20. How to stop the machine from command line?
+    command: shutdown           // grace period and stop machine
+             shutdown now       // immediate stop machine
+
+[root@ip-172-31-25-191 ~]# shutdown
+
+Broadcast message from root@ip-172-31-25-191.ec2.internal on pts/1 (Thu 2025-09-25 04:52:15 UTC):
+
+The system will power off at Thu 2025-09-25 04:53:15 UTC!
+
+Shutdown scheduled for Thu 2025-09-25 04:53:15 UTC, use 'shutdown -c' to cancel.
+[root@ip-172-31-25-191 ~]#
+[root@ip-172-31-25-191 ~]# date
+Thu Sep 25 04:52:27 UTC 2025
+[root@ip-172-31-25-191 ~]# shutdown -c
+
+Broadcast message from root@ip-172-31-25-191.ec2.internal on pts/1 (Thu 2025-09-25 04:52:38 UTC):
+
+System shutdown has been cancelled
+
+[root@ip-172-31-25-191 ~]#
+[root@ip-172-31-25-191 ~]#
+[root@ip-172-31-25-191 ~]# shutdown now
+
+Broadcast message from root@ip-172-31-25-191.ec2.internal on pts/1 (Thu 2025-09-25 04:52:44 UTC):
+
+The system will power off now!
+
+[root@ip-172-31-25-191 ~]# Connection to ec2-52-90-232-3.compute-1.amazonaws.com closed by remote host.
+Connection to ec2-52-90-232-3.compute-1.amazonaws.com closed.
+
+C:\Users\Sree Latha\Downloads>
+--------------------------------------------------------------------------------------------------------------------------
+21. How to capture the output of the command and run command in background?
+    command: nohup yum install git -y &
+
+nohup - capture the output  in nohup.out
+& - run command/process in background
+
+[root@ip-172-31-25-191 ~]# nohup yum install git -y &
+[1] 2581
+[root@ip-172-31-25-191 ~]# nohup: ignoring input and appending output to 'nohup.out'
+
+[root@ip-172-31-25-191 ~]#
+
+--------------------------------------------------------------------------------------------------------------------
+22. How to check logs without opening the file or displaying the entire logs?
+    command: tail -100 /var/log/messages              // tail will display latest logs and exit
+             tail -100f /var/log/messages             // tail will display latest logs and continue to tail logs
+ 
+             head -100 /var/log/messages              // displays the starting/beginning lines of the logs
+
+------------------------------------------------------------------------------------------------------------------------
+23. How to check binary location and its configuration files?
+    command: which binary               // binary location
+             whereis binary             // binary location and its configuration files
+
+[root@ip-172-31-25-191 ~]# which httpd
+/sbin/httpd
+[root@ip-172-31-25-191 ~]# whereis httpd
+httpd: /usr/sbin/httpd /usr/lib64/httpd /etc/httpd /usr/share/httpd /usr/share/man/man8/httpd.8.gz
+[root@ip-172-31-25-191 ~]#
+
+=====================================================================================================================
+

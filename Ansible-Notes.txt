@@ -1,0 +1,1242 @@
+Overview of Ansible
+Architecture of Ansible
+Alternative configuration management tools
+Pre-Requisite of Ansible
+Installation of Ansible
+How to check connectivity between controller and target machines?
+--------------------------------------------------------------------------------------------------------------------
+Ansible Usage
+Ansible colours
+Ansible Modules
+--------------------------------------------------------------------------------------------------------------------
+Ansible Inventories
+Ansible Playbooks
+Ansible Tags
+---------------------------------------------------------------------------------------------------------------------
+Ansible variables
+Ansible Register
+Ansible Loops
+---------------------------------------------------------------------------------------------------------------------
+Ansible Handlers
+Ansible Jinja Templates
+--------------------------------------------------------------------------------------------------------------------
+E2E HTTPD service deployment via Ansible Playbooks
+E2E Tomcat service deployment via Ansible Playbooks
+---------------------------------------------------------------------------------------------------------------------
+Ansible Roles
+E2E HTTPD service deployment via Ansible Roles
+E2E Tomcat service deployment via Ansible Roles
+--------------------------------------------------------------------------------------------------------------------
+Tips and Tricks for Ansible Deployment
+Practical: 18 Playbook for Executions  --> PDF for executions
+=====================================================================================================================
+Ansible is an configuration management tool or automation tool for automating all the manual task without human intervention.
+Ansible will perform activities like install/uninstall/upgrade/rollback/deployment and also it perform complex configuration changes in single shot.
+
+--------------------------------------
+Why Ansible?
+--------------------------------------
+eg: Tomcat Installation on 1000 machine:
+      * login into machine
+      * Install pre-requisite
+      * Download, extract the tomcat bundle
+      * Perform few configuration changes(10 files - 100 lines - 50 modify)
+      * enable/start and check the status of tomcat
+      * Deploy the application
+      * Validation 
+      * Logout from machine
+
+eg: Tomcat Uninstallation on 1000 machine:
+      * login into machine
+      * Undeploy the application
+      * disable/stop and check the status of tomcat
+      * Remove pre-requisite
+      * Delete the tomcat bundle
+      * Remove the configuration changes
+      * Validation 
+      * Logout from machine
+
+----------------------------------------------------
+challenges:
+----------------------------------------------------
+* Lot of human effort is required.
+* Lot of time consumption activity.
+* Human errors - mistakes
+* Changes missed leads to break system at runtime.
+* Rollback/upgrade needs time and application will have huge downtime.
+* Complex configuration changes is again difficult to perform manually.
+* No Reusability - human efforts cannot be reused.
+=============================================================================================================================
+Architecture of Ansible:
+============================================================================================================================
+Architecture of Ansible - How Ansible works ?
+============================================================================================================================
+Ansible is 2 tier architecture - 1 Ansible controller and "n" of target machines.
+Ansible uses password less connection between Ansible controller and "n" of target machines.
+Ansible uses push mechanism because we perform all the activities in one direction i.e. from controller to "n " of machines.
+Ansible is agentless that means we don't need to install any package on target machines.
+Ansible uses yaml format file called "playbook" which contains the instructions to perform any operations on target machines.
+Ansible uses inventory for storing all the target machines  - IPAddress/hostname/host group.
+
+                               Controller Machine  
+          |             |           |       . . . .. . . . . .  . . . . .  |
+
+     TargetNode-1    TargetNode-2    TargetNode-3                            TargetNode-n
+============================================================================================================================
+Alternative tools  - Puppet and Chef
+============================================================================================================================
+Puppet: 3 tier architecture 
+           1 puppet workstation, 1 puppet master and  "n" of puppet target machines
+        Puppet also uses passwordless mechanism
+        Puppet uses pull mechanism
+        Puppet requires agent to be installed on target machines
+        Puppet uses manifest for mentioning instructions(installation, uninstallation, config changes etc)
+
+Chef: 3 tier architecture 
+           1 chef workstation, 1 chef master and  "n" of chef client machines
+        chef also uses passwordless mechanism
+        chef uses pull mechanism
+        chef requires agent to be installed on target machines
+        chef uses cookbook for mentioning instructions(installation, uninstallation, config changes etc)
+
+============================================================================================================================
+Installation of Ansible:
+=============================================================================================================================
+1. Pre-requisite - SSH Password less connection between master and target machines.
+2. Ansible installation on master machine
+
+Pre requisite of Ansible : Password less connection between Ansible controller and Target machines
+==========================================================================================================================
+2 Machines: 1 Ansible controller  
+            1 Ansible Target 
+  
+Machine requirement:
+          * OS: Redhat 9
+          * Instance type: t2.micro/t3.micro
+          * HD: 10 GB
+
+Step-1: Login into Machine and switch to root user in both machines
+        sudo su
+
+Step-2: Create an common "ansible" in both machines
+        useradd ansible
+        passwd ansible
+
+Step-3: Delegate sudo privileges to ansible user on  both machines.
+        visudo
+        root    ALL=(ALL) ALL
+        ansible ALL=(ALL) ALL
+
+       %wheel  ALL=(ALL) NOPASSWD: ALL
+       ansible ALL=(ALL) NOPASSWD: ALL          // When sudo is used, password should not be prompt
+
+
+Note: * Execute step 5
+      * Try to login from controller to target:
+            controller> ssh ansible@private-ip-of-target-machine   // Error - Permission Denied - not prompt for password.
+                    
+
+step-4: Enable ssh communication between controller and target machine.
+        echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config.d/01-permitrootlogin.conf
+        echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config.d/01-permitrootlogin.conf
+
+        vi /etc/ssh/sshd_config
+        PermitRootLogin yes
+        PasswordAuthentication yes
+
+      Restart ssh service: systemctl restart sshd
+
+step-5: Exit from root user and switch to ansible user
+      exit
+      su - ansible
+      passwd: 
+
+Note: * Execute step 5
+      * Try to login from controller to target:
+            controller> ssh ansible@private-ip-of-target-machine   // It will Prompt for password.
+
+
+Step-6: Generate SSH key on Ansible controller Machine:
+        
+        ssh-keygen -t rsa
+            id_rsa     - private key - Non shareable key - Own password
+            id_rsa.pub - public key  - Shareable key to allow someone to login
+            authorized_keys - we keep all public keys
+      
+         cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys   // copy id_rsa.pub key in authorized_keys file
+         chmod 600  ~/.ssh/authorized_keys                // Restrict permissions till owner level only
+
+
+ step-7. Copy the ssh public key from Ansible controller to Target machine.
+     Method-1:  Copy the ssh public  key via ssh-copy-id command
+        ansible-controller > cd /home/ansible/.ssh
+                             ssh-copy-id ansible@private-ip-target-machine
+                             passwd:
+                  (OR)
+    Method-2: Manual Copy the ssh public  key into Target machine:
+              vi  ~/.ssh/authorized_keys  -> Add public key of Controller -> save and quit
+ 
+step-8: Try to login without password from  Ansible controller to Target machine.
+        
+    ansible-controller > ssh ansible@private-ip-target-machine       // this should not prompt pasword and allow login
+
+=====================================================================================================================
+Installation of Ansible on Ansible controller only:
+=====================================================================================================================
+1. Install Ansible Package:
+    sudo yum install ansible-core -y
+
+2. Verify Ansible version:
+   ansible --version 
+
+3. Ansible configuration:
+   vi /etc/ansible/ansible.cfg
+
+
+4. Ansible host file:
+/etc/ansible/hosts --> mention your target nodes.
+sudo vi /etc/ansible/hosts   -> default inventory
+
+[webservers]
+Private-IP-of-target-Node
+
+    (OR)
+ custom inventory in any location:
+ vi inventory
+
+[webservers]
+Private-IP-of-target-Node
+==========================================================================================================================
+Check the connectivity between master and target machines:
+==========================================================================================================================
+1. Default inventory:
+     * ansible Ipaddress/hostgroup/all -m ping
+
+2. Custom inventory:
+     * ansible Ipaddress/hostgroup/all -i /home/ansible/inventory -m ping
+
+[ansible@ip-172-31-11-132 ~]$ ansible webservers -m ping
+172.31.3.170 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+[ansible@ip-172-31-11-132 ~]$ ansible webservers -i inventory -m ping
+172.31.3.170 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+[ansible@ip-172-31-11-132 ~]$
+==========================================================================================================================
+Ansible Usage:
+==========================================================================================================================
+1. Adhoc command: Adhoc command is used for running the standalone modules for performing single tasks like install/uninstall/remove/gather info etc
+
+syntax: ansible [hostname/hostgroup/Ipaddress] -i [path-to-inventory] -m [module_name] -a [arguments]
+
+----------------------------------------------------------------------------------------------------------------------------
+2. Playbook command: Playbook command is used for executing the series of actions.
+
+   syntax: ansible-playbook -i [path-to-inventory] [playbook-name] -vvvv[verbose - detailed output]
+
+==========================================================================================================================
+Ansible outputs colours:
+==========================================================================================================================
+Green: Success
+Yellow: Updated/changed - success
+Red: failure
+
+rc == 0 - success               // rc - result count
+rc == 1 or above - failure
+
+==========================================================================================================================
+Ansible Modules:==========================================================================================================================
+1. setup module: setup module is used for gathering information from all the ansible target machines like OS details, network details, storage details, hardware details etc
+
+command: ansible webservers -i inventory -m setup
+
+----------------------------------------------------------------------------------------------------------------------------
+2. ping module: Ping module for checking connectivity between ansible controller and ansible target machine.
+
+   command: ansible webservers -i inventory -m ping
+
+----------------------------------------------------------------------------------------------------------------------------
+3. command module: command module is used for performing any linux operations.
+
+   command: ansible webservers -i inventory -m command -a "mkdir test-dir"
+            ansible webservers -i inventory -m command -a "yum install git -y" --become
+
+--become=true/yes --> sudo privileges to perform root level activities.
+
+-----------------------------------------------------------------------------------------------------------------------------
+4. shell module: shell module is used for performing any linux operations along with shell script operations.
+
+   command: ansible webservers -i inventory -m shell -a "mkdir test-dir"
+            ansible webservers -i inventory -m shell -a "yum install git -y" --become
+            ansible webservers -i inventory -m shell -a "bash /opt/startup.sh" --become
+
+--become=true/yes --> sudo privileges to perform root level activities.
+
+--------------------------------------------------------------------------------------------------------------------------
+5. file module: file module is used for creating/deleting the files/directories.
+    
+
+File:
+   command: ansible webservers -i inventory -m file -a 'dest=/opt/sample.txt state=touch' --become
+            ansible webservers -i inventory -m file -a 'dest=/opt/sample-1.txt state=touch mode=777 owner=ansible group=ansible' --become
+
+            ansible webservers -i inventory -m file -a 'dest=/opt/sample.txt state=absent' --become
+            ansible webservers -i inventory -m file -a 'dest=/opt/sample-1.txt state=absent' --become
+
+
+Directory:
+   command: ansible webservers -i inventory -m file -a 'dest=/opt/sample-dir state=directory' --become
+            ansible webservers -i inventory -m file -a 'dest=/opt/sample-dir-1 state=directory mode=777 owner=ansible group=ansible' --become
+
+            ansible webservers -i inventory -m file -a 'dest=/opt/sample-dir state=absent' --become
+            ansible webservers -i inventory -m file -a 'dest=/opt/sample-dir-1 state=absent' --become
+
+state=touch         // create file
+state=directory     // create directory
+state=absent        // delete file/directory
+-----------------------------------------------------------------------------------------------------------------------------
+6. user module: User module is used for creating/deleting users.
+
+   command: ansible webservers -i inventory -m user -a 'name=john state=present' --become
+            ansible webservers -i inventory -m user -a 'name=john state=absent' --become
+
+
+state = present       // create user
+        absent        // delete user
+
+---------------------------------------------------------------------------------------------------------------------------
+7. software module: software module is used for performing installation/uninstallation/upgrades using yum and apt.
+
+   command: ansible webservers -i inventory -m yum -a 'name=httpd state=present' --become
+            ansible webservers -i inventory -m yum -a 'name=httpd state=absent' --become
+            ansible webservers -i inventory -m yum -a 'name=httpd state=latest' --become
+
+
+state = present  // install package
+        absent   // uninstall package
+        latest   // upgrade package
+
+-----------------------------------------------------------------------------------------------------------------------------8. service module: service module is used for starting/stopping/restarting the services.
+
+   command:  ansible webservers -i inventory -m service -a 'name=httpd state=started' --become
+             ansible webservers -i inventory -m service -a 'name=httpd state=stopped' --become
+             ansible webservers -i inventory -m service -a 'name=httpd state=restarted' --become
+
+state = started       // start service
+        stopped       // stop service
+        restarted     // restart service
+
+-----------------------------------------------------------------------------------------------------------------------------
+9. copy module: copy module is used for copying the objects from controller machine to target machines.
+
+   command: ansible webservers -i inventory -m copy -a 'src=/home/ansible/controller.txt dest=/opt/controller.txt' --become
+
+==========================================================================================================================
+Ansible Inventories:
+==========================================================================================================================
+Inventory is an file which contains all the hosts, host groups and IPaddress of the target machines.
+
+---------------------------
+Types of Inventories:
+---------------------------
+1. INI format: INI format is an text based format which doesn't  require any indentations i.e spaces or tab spaces.
+               INI format inventory doesn't have any extension.
+        eg: inventory, inventory_tomcat, inventory-httpd etc
+
+------------------------------
+eg: vi inventory
+------------------------------
+#ungrouped servers
+10.0.0.10
+13.24.230.240
+linux-db-test-instance
+cache-non-prod-machine
+
+#grouped servers
+[webservers]
+webserver-01
+webserver-02
+webserver-03
+
+[appservers]
+appservers-[01-12]
+
+[dbservers]
+10.0.23.120
+db-server-host-1
+db-server-host-2
+
+----------------------------------------------------------------------------------------------------------------------------
+2. YAML format: YAML format inventory requires proper indentations i.e spaces and tab spaces.
+                YAML format inventory have extension as .yml/yaml
+ 
+    eg: inventory.yml, inventory-tomcat.yml, inventory_httpd.yaml
+
+------------------------------
+vi inventory.yml
+------------------------------
+all:
+ hosts:                                     // ungrouped servers
+  10.0.0.12
+  13.14.24.240
+  linux-db-test-instance
+  cache-non-prod machines
+ hosts:                                     // grouped servers
+  children:
+   webservers:
+    webserver-01
+    webserver-02
+    webserver-02
+   appservers:
+    appserver-[01-12]
+   dbservers:
+    10.0.12.14
+    db-host-machine-1
+    db-host-machine-2
+
+=============================================================================================================================
+Ansible Playbooks:
+============================================================================================================================
+Ansible playbook is an instruction file which contains Linux commands,  application package,  upgrades, rollback, deployment, configuration changes etc for automating manual task without human intervention.
+Ansible playbook has extension as .yaml/.yml.
+
+--------------------------------
+Structure of ansible playbook:
+--------------------------------
+Ansible playbook starts with 3 hypens(---)
+
+- hosts section
+- variables section (optional section)
+- tasks section
+
+-----------------------------------------
+vi sample-playbook-structure.yml
+------------------------------------------
+---
+- hosts: hostname/hostgroup/IPaddress/all
+  vars:
+   key: value 
+  tasks:
+  - name: module description
+    module: arguments
+  - name: module description
+    module: arguments
+- hosts: hostname/hostgroup/IPaddress/all
+  vars:
+   key: value 
+  tasks:
+  - name: module description
+    module: arguments
+  - name: module description
+    module: arguments
+
+Playbook contains list of play/plays.
+Play contains list of hosts, variables and tasks.
+Hosts contains hostname/hostgroup/IPaddress.
+Variable contains key pair values.
+Tasks contains list of modules.
+
+-----------------------------------
+vi sample-playbook.yml
+-----------------------------------
+---
+- hosts: webservers
+  become: true
+  vars:
+   name: john
+  tasks:
+  - name: Install network tools
+    yum: name=bind-utils state=present
+  - name: Install network tools
+    yum: name=net-tools state=present   
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Create directory structure
+    command: mkdir -p dir1/dir2/dir3
+  - name: Create files
+    command: touch f1 f2 f3 f4 
+
+command: ansible-playbook -i inventory sample-playbook.yml -vv
+
+============================================================================================================================
+Ansible Tags:
+============================================================================================================================
+Ansible tags are used for marking specific tasks or plays for specific execution inside the playbook.
+With tags we can execute specific task or play without modifying the playbook.
+
+eg: 100 tasks in an playbook, 96 tasks are successfull and 4 tasks are failed.
+                    * Re-run the entire playbook again
+                    * Create new inventory 4 IPs
+                    * comment 96 tasks in playbook.
+
+-------------------------------------------------------
+1. tags at task level:
+-------------------------------------------------------
+eg: vi without-tags-at-task-level.yml
+-----------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install network tools
+    yum: name=bind-utils state=present
+  - name: Install network tools
+    yum: name=net-tools state=present 
+  - name: Install git tools
+    yum: name=git state=present 
+  - name: Install wget tools
+    yum: name=wget state=present 
+  - name: Install at tools
+    yum: name=at state=present 
+  - name: Install zip tools
+    yum: name=zip state=present 
+
+command: ansible-playbook -i inventory without-tags-at-task-level.yml -vv
+-----------------------------------
+eg: vi with-tags-at-task-level.yml
+-----------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install network tools
+    yum: name=bind-utils state=present
+    tags:
+     - bind-utils
+  - name: Install network tools
+    yum: name=net-tools state=present 
+    tags:
+     - net-tools
+  - name: Install git tools
+    yum: name=git state=present 
+    tags:
+     - git
+  - name: Install wget tools
+    yum: name=wget state=present 
+    tags:
+     - wget
+  - name: Install at tools
+    yum: name=at state=present
+    tags:
+     - at
+  - name: Install zip tools
+    yum: name=zip state=present 
+    tags:
+     - zip
+
+command: ansible-playbook -i inventory with-tags-at-task-level.yml --tags=git,zip -vv
+
+-------------------------------------------------------
+2. tags at play level:
+-------------------------------------------------------
+eg: vi without-tags-at-play-level.yml
+-----------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install network tools
+    yum: name=bind-utils state=present
+  - name: Install network tools
+    yum: name=net-tools state=present 
+  - name: Install git tools
+    yum: name=git state=present 
+  - name: Install wget tools
+    yum: name=wget state=present 
+  - name: Install at tools
+    yum: name=at state=present 
+  - name: Install zip tools
+    yum: name=zip state=present 
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Uninstall network tools
+    yum: name=bind-utils state=absent
+  - name: Uninstall network tools
+    yum: name=net-tools state=absent 
+  - name: Uninstall git tools
+    yum: name=git state=absent 
+  - name: Uninstall wget tools
+    yum: name=wget state=absent 
+  - name: Uninstall at tools
+    yum: name=at state=absent 
+  - name: Uninstall zip tools
+    yum: name=zip state=absent 
+
+command: ansible-playbook -i inventory without-tags-at-play-level.yml -vv
+-----------------------------------
+eg: vi with-tags-at-play-level.yml
+-----------------------------------
+---
+- hosts: webservers
+  become: true
+  tags:
+    - install_package
+  tasks:
+  - name: Install network tools
+    yum: name=bind-utils state=present
+  - name: Install network tools
+    yum: name=net-tools state=present 
+  - name: Install git tools
+    yum: name=git state=present 
+  - name: Install wget tools
+    yum: name=wget state=present 
+  - name: Install at tools
+    yum: name=at state=present
+  - name: Install zip tools
+    yum: name=zip state=present 
+- hosts: webservers
+  become: true
+  tags:
+   - uninstall_package
+  tasks:
+  - name: Uninstall network tools
+    yum: name=bind-utils state=absent
+  - name: Uninstall network tools
+    yum: name=net-tools state=absent 
+  - name: Uninstall git tools
+    yum: name=git state=absent 
+  - name: Uninstall wget tools
+    yum: name=wget state=absent 
+  - name: Uninstall at tools
+    yum: name=at state=absent 
+  - name: Uninstall zip tools
+    yum: name=zip state=absent
+
+command: ansible-playbook -i inventory with-tags-at-play-level.yml --tags=uninstall_package -vv
+============================================================================================================================
+Ansible variables:
+============================================================================================================================
+Variable is an temporary storage location for storing an value. Ansible stores variables and its  value in the form of key pair values.
+
+eg: a=10      // a is variable and 10 is an value assigned to variable "a"
+    echo $a   // calling/accessing the value
+
+syntax:  vars:
+           variable_name: variable_value       // declaring and accessing values.
+        
+         {{ variable_name }}                    // Accessing the value
+
+--------------------------
+vi variables.yml
+--------------------------
+---
+- hosts: webservers
+  vars:
+   name: git
+  tasks:
+  - name: Display the variables values
+    debug:
+     msg={{ name }}
+  - name: Install package
+    yum: name={{ name }} state=present
+
+
+command: ansible-playbook -i inventory  variables.yml -vv
+
+============================================================================================================================
+Ansible Register:
+============================================================================================================================
+Register is used for capturing the entire output of the ansible task in register variable via register module.
+
+--------------------------
+eg: vi register.yml
+--------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install git package
+    yum: name=git state=present
+    register: reg_output
+  - name: Display the register variable's value
+    debug:
+     var: reg_output
+
+
+Execution: ansible-playbook -i inventory register.yml -vv
+    
+
+--------------------------
+eg: vi register-filter.yml
+--------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install git package
+    yum: name=git state=present
+    register: reg_output
+  - name: Display the register variable's value
+    debug:
+     var: reg_output.results
+
+
+Execution: ansible-playbook -i inventory register-filter.yml -vv
+
+============================================================================================================================
+Ansible Loops:
+============================================================================================================================
+Loops are used for repetative tasks, it also helps in reducing the number of lines in ansible playbooks and makes the output more readable.
+
+1. Single value loop: Single value loop is used for iterating over single value.
+
+   syntax: with_items:                // defining the values
+            - 'value1'
+            - 'value2'
+            - 'value3'
+             . 
+             .
+             .
+            - 'valuen'
+
+Accessing/calling the values: {{ item }}
+
+------------------------------------------
+eg: vi without-single-value-loop.yml
+------------------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install network tools
+    yum: name=bind-utils state=present
+  - name: Install network tools
+    yum: name=net-tools state=present 
+  - name: Install git tools
+    yum: name=git state=present 
+  - name: Install wget tools
+    yum: name=wget state=present 
+  - name: Install at tools
+    yum: name=at state=present
+  - name: Install zip tools
+    yum: name=zip state=present
+
+Execution: ansible-playbook -i inventory without-single-value-loop.yml -vv
+
+------------------------------------------
+eg: vi with-single-value-loop.yml
+------------------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install Packages
+    yum: name={{ item }} state=present
+    with_items:
+     - bind-utils
+     - net-tools
+     - git
+     - wget
+     - at
+     - zip
+     
+
+Execution: ansible-playbook -i inventory with-single-value-loop.yml -vv
+
+----------------------------------------------------------------------------------------------------------------------------
+2. Multi value loop: Multi value loop is used for iterating over multiple values.
+
+   syntax: with_items:
+            - { name: value1, state: value1 }       // defining the values
+            - { name: value2, state: value2 }
+            - { name: value3, state: value3 }
+            - { name: value4, state: value4 }
+              .
+              .
+            - { name: valuen, state: valuen }
+
+
+Accessing/calling variable: {{ item.name }} {{ item.state }}
+
+
+------------------------------------------
+eg: vi without-multi-value-loop.yml
+------------------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install network tools
+    yum: name=bind-utils state=present
+  - name: Uninstall network tools
+    yum: name=net-tools state=absent 
+  - name: Install git tools
+    yum: name=git state=present 
+  - name: Uninstall wget tools
+    yum: name=wget state=absent 
+  - name: Upgrade at tools
+    yum: name=at state=latest
+  - name: Uninstall zip tools
+    yum: name=zip state=absent
+
+Execution: ansible-playbook -i inventory without-multi-value-loop.yml -vv
+
+------------------------------------------
+eg: vi with-multi-value-loop.yml
+------------------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Package Management
+    yum: name={{ item.name }} state={{ item.state }}
+    with_items:
+     - { name: bind-utils, state: present }
+     - { name: net-tools, state: absent }
+     - { name: git, state: latest }
+     - { name: wget, state: absent }
+     - { name: at, state: present }
+     - { name: zip, state: absent }
+     
+
+Execution: ansible-playbook -i inventory with-multi-value-loop.yml -vv
+
+============================================================================================================================
+Ansible Handlers:
+============================================================================================================================
+Handlers are used for avoiding unnecessary application restarts at time of deployment/upgrade/rollback.
+Handlers will make sure whenever there is an application configuration changes only then application service should restarted.
+Handlers works with "notify" module which inform handlers whenever there is an change in configuration to restart the application.
+
+--------------------------------
+eg: vi without_handlers.yml
+--------------------------------
+vi index.html
+<H1> Static web page </H1>
+
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install httpd service
+    yum: name=httpd state=present
+  - name: Start the httpd service
+    service: name=httpd state=started
+  - name: configuration changes
+    copy: src=/home/ansible/index.html dest=/var/www/html/index.html
+  - name: Restart the httpd service
+    service: name=httpd state=restarted
+
+Execution: ansible-playbook -i inventory  without_handlers.yml -vv
+
+--------------------------------
+eg: vi with_handlers.yml
+--------------------------------
+vi index.html
+<H1> Static web page </H1>
+
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install httpd service
+    yum: name=httpd state=present
+  - name: Start the httpd service
+    service: name=httpd state=started
+  - name: configuration changes
+    copy: src=/home/ansible/index.html dest=/var/www/html/index.html
+    notify:
+     - Restart the httpd service
+  handlers:
+  - name: Restart the httpd service
+    service: name=httpd state=restarted
+
+Execution: ansible-playbook -i inventory  with_handlers.yml -vv
+
+
+[ansible@ip-172-31-18-134 ~]$  ansible-playbook -i inventory  with_handlers.yml
+
+PLAY [webservers] ***************************************************************************************************
+
+TASK [Gathering Facts] **********************************************************************************************
+ok: [172.31.31.169]
+
+TASK [Install httpd service] ****************************************************************************************
+ok: [172.31.31.169]
+
+TASK [Start the httpd service] **************************************************************************************
+ok: [172.31.31.169]
+
+TASK [configuration changes] ****************************************************************************************
+changed: [172.31.31.169]
+
+RUNNING HANDLER [Restart the httpd service] *************************************************************************
+changed: [172.31.31.169]
+
+PLAY RECAP **********************************************************************************************************
+172.31.31.169              : ok=5    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+[ansible@ip-172-31-18-134 ~]$ 
+
+=============================================================================================================================
+Ansible Jinja Templates:
+=============================================================================================================================
+Templates are used for replacing the default values with actual values from the configuration files.
+With Templates, we can also replace the entire configuration files.
+Templates has extension as .j2
+
+eg: original file: /opt/tomcat/bin/server.xml
+    Template file: /opt/tomcat/bin/server.xml.j2
+
+-----------------------------------------------------------------------------------------------------------------------------
+example:
+-----------------------------------------------------------------------------------------------------------------------------
+1. local variables:
+------------------------------------------------------------------------------------------
+eg: vi server.xml.j2
+-----------------------------
+HOST: {{ HOST }}
+PORT: {{ PORT }}
+db_version: 2.6
+
+---------------------------------------------
+eg: vi tomcat-configuration.yml
+---------------------------------------------
+---
+- hosts: webservers
+  become: true
+  vars:
+   HOST: webserver-tomcat
+   PORT: 8080
+  tasks:
+  - name: Configuration changes in tomcat
+    template: src=/home/ansible/server.xml.j2 dest=/opt/server.xml
+
+
+Execution: ansible-playbook -i inventory tomcat-configuration.yml -vv 
+
+---------------------------------------------
+output: cat /opt/server.xml
+---------------------------------------------
+HOST: webserver-tomcat
+PORT: 8080
+db_version: 2.6
+
+-------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+2. Global variables:
+------------------------------------------------------------------------------------------
+mkdir group_vars
+touch group_vars/all
+
+------------------------
+vi group_vars/all
+------------------------
+HOST: webserver-tomcat
+PORT: 9000
+db_version: 2.6
+
+-----------------------------
+eg: vi server.xml.j2
+-----------------------------
+HOST: {{ HOST }}
+PORT: {{ PORT }}
+db_version: 2.6
+
+---------------------------------------------
+eg: vi tomcat-configuration.yml
+---------------------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Configuration changes in tomcat
+    template: src=/home/ansible/server.xml.j2 dest=/opt/server.xml
+
+
+Execution: ansible-playbook -i inventory tomcat-configuration.yml -vv
+
+
+---------------------------------------------
+output: cat /opt/server.xml
+---------------------------------------------
+HOST: webserver-tomcat
+PORT: 9000
+db_version: 2.6
+
+=====================================================================================================================
+E2E HTTPD service deployment via Ansible Playbooks:
+=====================================================================================================================
+vi httpd-management.yml
+----------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install httpd package
+    yum: name=httpd state=present
+  - name: Start httpd service
+    service: name=httpd state=started
+  - name: Configuration for httpd service - index.html
+    copy: src=/home/ansible/index.html dest=/var/www/html/index.html
+    notify:
+     - restart httpd service
+  handlers: 
+  - name: restart httpd service
+    service: name=httpd state=restarted
+
+Execution: ansible-playbook -i inventory httpd-management.yml -vv
+=====================================================================================================================
+E2E Tomcat service deployment via Ansible Playbooks:
+=====================================================================================================================
+vi playbook-tomcat.yml
+===========================
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install Java 
+    yum: name=java-11* state=present
+
+  - name: Make directory /opt/tomcat
+    command: mkdir -p /opt/tomcat
+    
+  - name: Download Tomcat
+    get_url: url=https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.109/bin/apache-tomcat-7.0.109.tar.gz dest=/opt/tomcat
+
+  - name: Extract the file downloaded tomcat file
+    command: tar xf /opt/tomcat/apache-tomcat-7.0.109.tar.gz -C /opt/tomcat/
+ 
+  - name: Change Ownership and group of the Tomcat directory
+    file: path=/opt/tomcat/apache-tomcat-7.0.109 owner=ansible group=ansible mode=775 state=directory recurse=yes
+ 
+  - name: Start Tomcat
+    command: nohup /opt/tomcat/apache-tomcat-7.0.109/bin/startup.sh # Execute command even after you have exited from the shell prompt
+    become: true
+    become_user: ansible
+  
+  - name: Deploy the new WAR file to target servers
+    copy: src=/home/ansible/SampleWebApp.war  dest=/opt/tomcat/apache-tomcat-7.0.109/webapps
+
+
+Execution: ansible-playbook -i inventory playbook-tomcat.yml -vv
+
+URL: http://Public-IP:8080       - Open -> hit server status/Manager/hostmanager   // Error
+URL: http://Public-IP:8080/SampleWebApp
+=============================================================================================================================
+Ansible Roles
+=============================================================================================================================
+Ansible role is used for dividing the complex playbook into small playbooks for easy debug and troubleshooting.
+Ansible role is used for reusability of the playbook
+Ansible role contains list of playbooks.
+Ansible role is created using ansible-galaxy command.
+
+Syntax: ansible-galaxy init role_name
+
+command: ansible-galaxy init apache_httpd
+
+[ansible@ip-172-31-18-134 ~]$ ansible-galaxy init apache_httpd
+- Role apache_httpd was created successfully
+[ansible@ip-172-31-18-134 ~]$
+
+-----------------------------------
+Structure of Ansible role:
+----------------------------------
+[ansible@ip-172-31-18-134 apache_httpd]$ tree
+.
+├── defaults
+│   └── main.yml
+├── files
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── README.md
+├── tasks
+│   └── main.yml
+├── templates
+├── tests
+│   ├── inventory
+│   └── test.yml
+└── vars
+    └── main.yml
+
+8 directories, 8 files
+[ansible@ip-172-31-18-134 apache_httpd]$
+
+---------------------------------------------------
+Playbook for dividing into role:
+---------------------------------------------------
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Install httpd service
+    yum: name=httpd state=present
+  - name: Start the httpd service
+    service: name=httpd state=started
+  - name: configuration changes
+    copy: src=/home/ansible/index.html dest=/var/www/html/index.html
+    notify:
+     - Restart the httpd service
+  handlers:
+  - name: Restart the httpd service
+    service: name=httpd state=restarted
+
+
+--------------------------------------------------------------------------------------------------------------
+Steps for dividing playbook into role:
+--------------------------------------------------------------------------------------------------------------
+1. create an role:
+
+command: ansible-galaxy init apache_httpd
+
+[ansible@ip-172-31-18-134 ~]$ ansible-galaxy init apache_httpd
+- Role apache_httpd was created successfully
+[ansible@ip-172-31-18-134 ~]$
+
+
+-------------------------------------------------------
+2. Divide the playbook components into role:
+-------------------------------------------------------
+a. tasks:
+----------------------------------
+i) vi install.yml
+----------------------------------
+---
+  - name: Install httpd service
+    yum: name=httpd state=present
+
+----------------------------------
+ii) vi start.yml
+----------------------------------
+---
+  - name: Start the httpd service
+    service: name=httpd state=started
+
+------------------------------------
+iii) vi config.yml
+------------------------------------
+---
+  - name: configuration changes
+    copy: src=index.html dest=/var/www/html/index.html
+    notify:
+     - Restart the httpd service
+
+----------------------------------
+iv) vi main.yml
+----------------------------------
+---
+- import_tasks: install.yml
+- import_tasks: start.yml
+- import_tasks: config.yml
+
+---------------------------------------------
+b. handlers:
+---------------------------------------------
+vi main.yml
+------------------------------
+---
+  - name: Restart the httpd service
+    service: name=httpd state=restarted
+
+----------------------------------------------
+c. files:
+----------------------------------------------
+vi index.html
+---------------------
+<H1> Static web application </H1>
+
+
+---------------------------------------------
+d. metadata:
+--------------------------------------------
+vi main.yml
+----------------------
+---
+author:
+description:
+version:
+
+-----------------------------------------------------------
+3. create an main playbook yaml file for role execution:
+-----------------------------------------------------------
+vi install_apache_httpd.yml
+-------------------------------
+---
+- hosts: webservers
+  become: true
+  roles:
+   - apache_httpd
+  
+Note: Above yaml file should be outside role directory
+
+Execution of role: ansible-playbook -i inventory install_apache_httpd.yml -vv
+
+=============================================================================================================================
+Tips and Tricks for Ansible Deployment:
+=============================================================================================================================
+1. limit: limit is an filter used for executing the playbook on specific target machines without modifying the inventory.
+   
+   command: ansible-playbook -i inventory sample-playbook.yml --limit=IP1, IP2, hostaname..... -vv
+
+eg: 100 machines in an inventory , out of which 96 machines are successfull and 4 are failed.
+                 * comment 96 machines and execute - difficult task
+                 * create new inventory with 4 machines
+                 * Manully execute playbook on 4 machines.
+
+-----------------------------------------------------------------------------------------------------------------------------
+2. skip-tags: skip-tags are used for skipping the particular task without editing the playbook.
+
+   command: ansible-playbook -i inventory with-tags-at-task-level.yml --skip-tags=zip,wget
+
+-----------------------------------------------------------------------------------------------------------------------------
+3. start-at-task: Start at task is used for starting the playbook from particular point or task.
+ 
+   command: ansible-playbook -i inventory with-tags-at-task-level.yml --start-at-task="Install wget tools"
+
+
+  eg: task-1
+      task-2
+      .
+      .
+      task-20 - start from here till the end of the playbook
+      .
+      .
+      task-n
+
+-----------------------------------------------------------------------------------------------------------------------------4. step: step is used for executing the playbook step by step for easy debug, troublshooting and verification.
+         step pauses the playbook at every task for proper verification for users.
+
+   command: ansible-playbook -i inventory with-tags-at-task-level.yml --step
+
+Perform task: TASK: Gathering Facts (N)o/(y)es/(c)ontinue:
+
+ N - dont execute task
+ y - execute task
+ c - continue the task execution till the end of playbook
+
+---------------------------------------------------------------------------------------------------------------------------
+5. list-hosts: list-hosts is used for listing all the hosts on which the playbook is going to be executed.
+
+   command: ansible-playbook -i inventory with-tags-at-task-level.yml --list-hosts
+
+[ansible@ip-172-31-18-134 ~]$ ansible-playbook -i inventory with-tags-at-task-level.yml --list-hosts
+
+playbook: with-tags-at-task-level.yml
+
+  play #1 (webservers): webservers      TAGS: []
+    pattern: ['webservers']
+    hosts (2):
+      172.31.18.134
+      172.31.31.169
+[ansible@ip-172-31-18-134 ~]$
+
+-----------------------------------------------------------------------------------------------------------------------------
+6. syntax/syntax-check: Syntax is used for checking the syntax errors before actual execution of playbook.
+
+   command: ansible-playbook -i inventory with-tags-at-task-level.yml --syntax
+
+============================================================================================================================
